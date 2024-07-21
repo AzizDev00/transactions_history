@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block content %}
+<h1>Expenses</h1>
+<table class="transaction-table">
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Expense Type</th>
+        <th>Image</th>
+        <th>Actions</th>
+    </tr>
+    {% for expense in expenses %}
+    <tr>
+        <td>{{ expense.date }}</td>
+        <td>{{ expense.amount }}</td>
+        <td>{{ expense.expense_type.name }}</td>
+        <td>{% if expense.image %}<img src="{{ expense.image.url }}" alt="Expense Image" width="50">{% endif %}</td>
+        <td class="action-buttons">
+            <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>
+            <a href="{% url 'delete_expense' expense.pk %}" class="delete">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h1>Incomes</h1>
+<table class="transaction-table">
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Income Type</th>
+        <th>Image</th>
+        <th>Actions</th>
+    </tr>
+    {% for income in incomes %}
+    <tr>
+        <td>{{ income.date }}</td>
+        <td>{{ income.amount }}</td>
+        <td>{{ income.income_type.name }}</td>
+        <td>{% if income.image %}<img src="{{ income.image.url }}" alt="Income Image" width="50">{% endif %}</td>
+        <td class="action-buttons">
+            <a href="{% url 'edit_income' income.pk %}" class="edit">Edit</a>
+            <a href="{% url 'delete_income' income.pk %}" class="delete">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
