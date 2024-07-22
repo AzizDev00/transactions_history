@@ -11,7 +11,7 @@ class AccountBalance(models.Model):
     
 class ExpenseType(models.Model):
     name = models.CharField(max_length=50)
-
+    image = models.ImageField(upload_to='expense_types/')
     def __str__(self):
         return self.name
 

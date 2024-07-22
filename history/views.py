@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import AccountBalance, Expense, Income, Report
+from .models import AccountBalance, Expense, ExpenseType, Income, Report
 from .forms import ExpenseForm, IncomeForm, ReportForm, ExpenseTypeForm
 from django.utils import timezone
 from datetime import datetime
@@ -23,8 +23,7 @@ def add_expense(request):
         form = ExpenseForm(request.POST, request.FILES)
         if form.is_valid():
             expense = form.save(commit=False)
-            expense.date = form.cleaned_data.get('date')
-            expense.user = request.user
+            expense.date = form.cleaned_data['date']
             account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
             if account_balance.balance >= expense.amount:
                 expense.account_balance = account_balance
@@ -36,7 +35,9 @@ def add_expense(request):
                 messages.error(request, 'You do not have enough funds in your account.')
     else:
         form = ExpenseForm()
-    return render(request, 'history/add_expense.html', {'form': form})
+    
+    expense_types = ExpenseType.objects.all()
+    return render(request, 'history/add_expense.html', {'form': form, 'expense_types': expense_types})
 
 @login_required
 def add_income(request):

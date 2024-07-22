@@ -8,10 +8,12 @@ class DateRangeForm(forms.Form):
 
 class ExpenseForm(forms.ModelForm):
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    expense_type = forms.ModelChoiceField(queryset=ExpenseType.objects.all(), widget=forms.RadioSelect())
 
     class Meta:
         model = Expense
         fields = ['amount', 'expense_type', 'image', 'date']
+
 
 class IncomeForm(forms.ModelForm):
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
