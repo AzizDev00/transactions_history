@@ -2,20 +2,23 @@ from django import forms
 from .models import Expense, Income, Report, ExpenseType
 from django.utils import timezone
 
+class DateRangeForm(forms.Form):
+    start_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date'}))
 
 class ExpenseForm(forms.ModelForm):
-    date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), initial=timezone.now)
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
         model = Expense
-        fields = ['amount', 'date', 'expense_type', 'image']
+        fields = ['amount', 'expense_type', 'image', 'date']
 
 class IncomeForm(forms.ModelForm):
-    date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), initial=timezone.now)
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
     class Meta:
         model = Income
-        fields = ['amount', 'date', 'income_type', 'image']
+        fields = ['amount', 'income_type', 'image', 'date']
     
 class ReportForm(forms.ModelForm):
     class Meta:

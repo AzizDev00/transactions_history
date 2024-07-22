@@ -4,17 +4,16 @@ from django.contrib import messages
 from .models import AccountBalance, Expense, Income, Report
 from .forms import ExpenseForm, IncomeForm, ReportForm, ExpenseTypeForm
 from django.utils import timezone
+from datetime import datetime
 
 @login_required
 def index(request):
-    expenses = Expense.objects.all()
-    incomes = Income.objects.all()
-    reports = Report.objects.all()
+    expenses = Expense.objects.filter(account_balance__user=request.user)
+    incomes = Income.objects.filter(account_balance__user=request.user)
     account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
     return render(request, 'history/index.html', {
         'expenses': expenses,
         'incomes': incomes,
-        'reports': reports,
         'balance': account_balance.balance,
     })
 
@@ -24,7 +23,8 @@ def add_expense(request):
         form = ExpenseForm(request.POST, request.FILES)
         if form.is_valid():
             expense = form.save(commit=False)
-            expense.date = timezone.now()
+            expense.date = form.cleaned_data.get('date')
+            expense.user = request.user
             account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
             if account_balance.balance >= expense.amount:
                 expense.account_balance = account_balance
@@ -44,12 +44,12 @@ def add_income(request):
         form = IncomeForm(request.POST, request.FILES)
         if form.is_valid():
             income = form.save(commit=False)
-            income.date = timezone.now()
             account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
             income.account_balance = account_balance
             account_balance.balance += income.amount
             account_balance.save()
             income.save()
+            messages.success(request, 'Income added successfully.')
             return redirect('index')
     else:
         form = IncomeForm()
@@ -84,6 +84,7 @@ def delete_expense(request, pk):
         account_balance.balance += expense.amount
         account_balance.save()
         expense.delete()
+        messages.success(request, 'Expense deleted successfully.')
         return redirect('index')
     return render(request, 'history/delete_expense.html', {'expense': expense})
 
@@ -100,6 +101,7 @@ def edit_income(request, pk):
             account_balance.balance += new_income.amount
             account_balance.save()
             new_income.save()
+            messages.success(request, 'Income updated successfully.')
             return redirect('index')
     else:
         form = IncomeForm(instance=income)
@@ -113,6 +115,7 @@ def delete_income(request, pk):
         account_balance.balance -= income.amount
         account_balance.save()
         income.delete()
+        messages.success(request, 'Income deleted successfully.')
         return redirect('index')
     return render(request, 'history/delete_income.html', {'income': income})
 
@@ -122,6 +125,7 @@ def add_report(request):
         form = ReportForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Report added successfully.')
             return redirect('index')
     else:
         form = ReportForm()
@@ -133,7 +137,36 @@ def add_expense_type(request):
         form = ExpenseTypeForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Expense type added successfully.')
             return redirect('index')
     else:
         form = ExpenseTypeForm()
     return render(request, 'history/add_expense_type.html', {'form': form})
+
+@login_required
+def history(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date and end_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        expenses = Expense.objects.filter(date__range=(start_date, end_date))
+        incomes = Income.objects.filter(date__range=(start_date, end_date))
+    else:
+        expenses = Expense.objects.all()
+        incomes = Income.objects.all()
+
+    total_expenses = sum(expense.amount for expense in expenses)
+    total_incomes = sum(income.amount for income in incomes)
+    account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
+
+    context = {
+        'expenses': expenses,
+        'incomes': incomes,
+        'total_expenses': total_expenses,
+        'total_incomes': total_incomes,
+        'balance': account_balance.balance,  # Use balance from AccountBalance model
+    }
+
+    return render(request, 'history/history.html', context)

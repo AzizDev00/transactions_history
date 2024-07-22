@@ -3,7 +3,21 @@
 {% block title %}Transaction History{% endblock %}
 
 {% block content %}
-<h1>Expenses</h1>
+<h1>Transaction History</h1>
+
+<form method="get" action="{% url 'history' %}">
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" required>
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date" required>
+    <button type="submit">Filter</button>
+</form>
+
+<h2>Summary</h2>
+<p>Total Incomes: ${{ total_incomes }}</p>
+<p>Total Expenses: ${{ total_expenses }}</p>
+
+<h2>Expenses</h2>
 <table class="transaction-table">
     <tr>
         <th>Date</th>
@@ -26,7 +40,7 @@
     {% endfor %}
 </table>
 
-<h1>Incomes</h1>
+<h2>Incomes</h2>
 <table class="transaction-table">
     <tr>
         <th>Date</th>
