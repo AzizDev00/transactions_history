@@ -16,7 +16,13 @@
     <tr>
         <td>{{ expense.date }}</td>
         <td>{{ expense.amount }}</td>
-        <td>{{ expense.expense_type }}</td>
+        <td>
+            {% if expense.expense_type %}
+                {{ expense.expense_type.name }}
+            {% elif expense.manual_expense_type %}
+                {{ expense.manual_expense_type }}
+            {% endif %}
+        </td>
         <td>{% if expense.image %}<img src="{{ expense.image.url }}" alt="Expense Image" width="50">{% endif %}</td>
         <td class="action-buttons">
             <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>

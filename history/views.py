@@ -1,21 +1,29 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import AccountBalance, Expense, ExpenseType, Income, Report
+from .models import AccountBalance, Expense, ExpenseType, Income, IncomeType, Report
 from .forms import ExpenseForm, IncomeForm, ReportForm, ExpenseTypeForm
 from django.utils import timezone
 from datetime import datetime
 
-@login_required
 def index(request):
-    expenses = Expense.objects.filter(account_balance__user=request.user)
-    incomes = Income.objects.filter(account_balance__user=request.user)
-    account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
-    return render(request, 'history/index.html', {
+    expenses = Expense.objects.all()
+    incomes = Income.objects.all()
+    
+    total_expenses = sum(expense.amount for expense in expenses)
+    total_incomes = sum(income.amount for income in incomes)
+    total_transactions = total_expenses + total_incomes
+
+    context = {
         'expenses': expenses,
         'incomes': incomes,
-        'balance': account_balance.balance,
-    })
+        'total_expenses': total_expenses,
+        'total_incomes': total_incomes,
+        'total_transactions': total_transactions,
+        'balance': total_incomes - total_expenses
+    }
+    return render(request, 'history/index.html', context
+)
 
 @login_required
 def add_expense(request):
@@ -23,19 +31,32 @@ def add_expense(request):
         form = ExpenseForm(request.POST, request.FILES)
         if form.is_valid():
             expense = form.save(commit=False)
-            expense.date = form.cleaned_data['date']
+            manual_expense_type = form.cleaned_data.get('manual_expense_type')
+            expense_type = form.cleaned_data.get('expense_type')
+
+            if manual_expense_type:
+                expense.expense_type = None
+                expense.manual_expense_type = manual_expense_type
+            elif expense_type:
+                expense.manual_expense_type = None
+                expense.expense_type = expense_type
+            else:
+                messages.error(request, 'Please select or enter an expense type.')
+                return render(request, 'history/add_expense.html', {'form': form, 'expense_types': ExpenseType.objects.all()})
+
             account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
             if account_balance.balance >= expense.amount:
                 expense.account_balance = account_balance
                 account_balance.balance -= expense.amount
                 account_balance.save()
                 expense.save()
+                messages.success(request, 'Expense added successfully.')
                 return redirect('index')
             else:
                 messages.error(request, 'You do not have enough funds in your account.')
     else:
         form = ExpenseForm()
-    
+
     expense_types = ExpenseType.objects.all()
     return render(request, 'history/add_expense.html', {'form': form, 'expense_types': expense_types})
 
@@ -45,16 +66,30 @@ def add_income(request):
         form = IncomeForm(request.POST, request.FILES)
         if form.is_valid():
             income = form.save(commit=False)
-            account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
-            income.account_balance = account_balance
-            account_balance.balance += income.amount
-            account_balance.save()
+            manual_income_type = form.cleaned_data.get('manual_income_type')
+            manual_income_image = form.cleaned_data.get('manual_income_image')
+
+            if manual_income_type:
+                income_type, created = IncomeType.objects.get_or_create(name=manual_income_type)
+                if manual_income_image:
+                    income_type.image = manual_income_image
+                    income_type.save()
+                income.income_type = income_type
+
+            income.account_balance = AccountBalance.objects.get_or_create(user=request.user)[0]
+            income.account_balance.balance += income.amount
+            income.account_balance.save()
             income.save()
             messages.success(request, 'Income added successfully.')
             return redirect('index')
+        else:
+            messages.error(request, 'There was an error with your form.')
     else:
         form = IncomeForm()
-    return render(request, 'history/add_income.html', {'form': form})
+
+    income_types = IncomeType.objects.all()
+    return render(request, 'history/add_income.html', {'form': form, 'income_types': income_types})
+
 
 @login_required
 def edit_expense(request, pk):
@@ -98,7 +133,7 @@ def edit_income(request, pk):
         if form.is_valid():
             new_income = form.save(commit=False)
             account_balance = income.account_balance
-            account_balance.balance -= old_amount  # Subtract the old amount
+            account_balance.balance -= old_amount
             account_balance.balance += new_income.amount
             account_balance.save()
             new_income.save()
@@ -167,7 +202,7 @@ def history(request):
         'incomes': incomes,
         'total_expenses': total_expenses,
         'total_incomes': total_incomes,
-        'balance': account_balance.balance,  # Use balance from AccountBalance model
+        'balance': account_balance.balance,
     }
 
     return render(request, 'history/history.html', context)

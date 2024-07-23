@@ -17,10 +17,20 @@
             <div class="expense-type-option">
                 <input type="radio" id="expense_type_{{ expense_type.id }}" name="expense_type" value="{{ expense_type.id }}" style="display: none;">
                 <label for="expense_type_{{ expense_type.id }}">
+                    {% if expense_type.image %}
                     <img src="{{ expense_type.image.url }}" alt="{{ expense_type.name }}" title="{{ expense_type.name }}">
+                    {% else %}
+                    <span>{{ expense_type.name }}</span>
+                    {% endif %}
                 </label>
             </div>
             {% endfor %}
+        </div>
+        <div>
+            <label for="manual_expense_type">Or Enter Expense Type Manually</label>
+            {{ form.manual_expense_type }}
+            <label for="manual_expense_image">Upload Image for Manual Expense Type</label>
+            {{ form.manual_expense_image }}
         </div>
     </div>
     <div>
@@ -122,7 +132,15 @@
             option.addEventListener('click', () => {
                 const radioInput = option.querySelector('input[type="radio"]');
                 radioInput.checked = true;
+                document.querySelector('#id_manual_expense_type').value = ''; // Clear manual input when an image is selected
             });
+        });
+
+        document.querySelector('#id_manual_expense_type').addEventListener('input', function() {
+            const checkedRadio = document.querySelector('.expense-type-option input[type="radio"]:checked');
+            if (checkedRadio) {
+                checkedRadio.checked = false;
+            }
         });
     });
 </script>
