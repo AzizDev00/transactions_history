@@ -13,5 +13,7 @@ urlpatterns = [
     path('add_report/', views.add_report, name='add_report'),
     path('add_expense_type/', views.add_expense_type, name='add_expense_type'),
     path('history/', views.history, name='history'),
+    path('import/', views.import_transactions, name='import_transactions'),
+
 
 ]

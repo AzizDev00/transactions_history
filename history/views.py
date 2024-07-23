@@ -1,9 +1,11 @@
+# views.py
+import csv
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import AccountBalance, Expense, ExpenseType, Income, IncomeType, Report
 from .forms import ExpenseForm, IncomeForm, ReportForm, ExpenseTypeForm
-from django.utils import timezone
 from datetime import datetime
 
 def index(request):
@@ -12,18 +14,15 @@ def index(request):
     
     total_expenses = sum(expense.amount for expense in expenses)
     total_incomes = sum(income.amount for income in incomes)
-    total_transactions = total_expenses + total_incomes
 
     context = {
         'expenses': expenses,
         'incomes': incomes,
         'total_expenses': total_expenses,
         'total_incomes': total_incomes,
-        'total_transactions': total_transactions,
         'balance': total_incomes - total_expenses
     }
-    return render(request, 'history/index.html', context
-)
+    return render(request, 'history/index.html', context)
 
 @login_required
 def add_expense(request):
@@ -89,7 +88,6 @@ def add_income(request):
 
     income_types = IncomeType.objects.all()
     return render(request, 'history/add_income.html', {'form': form, 'income_types': income_types})
-
 
 @login_required
 def edit_expense(request, pk):
@@ -206,3 +204,55 @@ def history(request):
     }
 
     return render(request, 'history/history.html', context)
+
+def import_transactions(request):
+    if request.method == 'POST':
+        csv_file = request.FILES['file']
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'This is not a CSV file')
+            return redirect('import_transactions')
+
+        file_data = csv_file.read().decode('utf-8')
+        lines = file_data.split('\n')
+
+        for line in lines:
+            if not line.strip():
+                continue
+
+            fields = line.split(',')
+
+            if len(fields) < 6: 
+                messages.error(request, 'CSV file format is incorrect')
+                return redirect('import_transactions')
+
+            try:
+                date = fields[0]
+                amount = fields[1]
+                expense_type_name = fields[2]
+                manual_expense_type = fields[3]
+                image = fields[4]
+                account_balance_id = fields[5]
+
+                account_balance = AccountBalance.objects.get(id=account_balance_id)  
+
+                expense_type = None
+                if expense_type_name:
+                    expense_type, created = ExpenseType.objects.get_or_create(name=expense_type_name)
+
+                Expense.objects.create(
+                    date=date,
+                    amount=amount,
+                    expense_type=expense_type,
+                    manual_expense_type=manual_expense_type or None,
+                    image=image or None,
+                    account_balance=account_balance
+                )
+
+            except Exception as e:
+                messages.error(request, f'Error processing line: {line}. Error: {str(e)}')
+                continue
+
+        messages.success(request, 'Transactions imported successfully!')
+        return redirect('history')
+
+    return render(request, 'history/import.html')

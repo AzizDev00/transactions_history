@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Transaction History{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -12,6 +13,7 @@
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
         }
         .sidebar {
             width: 250px;
@@ -45,74 +47,71 @@
             width: 80%;
             text-align: center;
         }
-        .container {
+        .content {
             margin-left: 250px;
             padding: 2em;
             flex-grow: 1;
             transition: margin-left 0.3s ease;
         }
-        .header {
-            background-color: #007bff;
-            color: white;
-            padding: 1em;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #343a40;
-        }
-        .chart-container {
-            margin-top: 2em;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            padding: 2em;
-        }
-        .transaction-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 2em;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background-color: white;
-        }
-        .transaction-table th, .transaction-table td {
-            border: 1px solid #ddd;
-            padding: 1em;
-            text-align: left;
-        }
-        .transaction-table th {
-            background-color: #007bff;
-            color: white;
-        }
-        .transaction-table tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .transaction-table tr:hover {
-            background-color: #ddd;
-        }
-        .action-buttons {
+        .transaction-cards {
             display: flex;
-            gap: 0.5em;
+            flex-wrap: wrap;
+            gap: 1em;
         }
-        .action-buttons a {
+        .transaction-card {
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 1em;
+            flex: 1 1 calc(25% - 1em);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .transaction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .transaction-card h5, .transaction-card p {
+            margin: 0;
+            padding: 0.5em 0;
+        }
+        .transaction-card .amount {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .transaction-card .actions {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+        }
+        .transaction-card .actions a {
             text-decoration: none;
             padding: 0.5em 1em;
-            color: white;
             border-radius: 5px;
         }
-        .action-buttons .edit {
+        .transaction-card .actions .edit {
             background-color: #28a745;
+            color: white;
         }
-        .action-buttons .delete {
+        .transaction-card .actions .delete {
             background-color: #dc3545;
+            color: white;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 2em;
         }
         .sidebar-toggle {
             position: absolute;
-            top: 15px;
-            left: 260px;
+            top: 50%;
+            left: 250px;
+            transform: translateY(-50%);
             font-size: 24px;
             cursor: pointer;
             color: #343a40;
+            z-index: 1001;
         }
         .sidebar-hidden {
             transform: translateX(-250px);
@@ -120,7 +119,35 @@
         .container-expanded {
             margin-left: 0;
         }
+        .date-filter-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .transaction-table th, .transaction-table td {
+            padding: 10px;
+        }
     </style>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const content = document.querySelector('.content');
+            const toggleIcon = document.querySelector('.sidebar-toggle');
+
+            sidebar.classList.toggle('sidebar-hidden');
+            content.classList.toggle('container-expanded');
+
+            if (sidebar.classList.contains('sidebar-hidden')) {
+                toggleIcon.innerHTML = '&#9654;';
+                toggleIcon.style.left = '10px';
+            } else {
+                toggleIcon.innerHTML = '&#9664;';
+                toggleIcon.style.left = '250px';
+            }
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
 </head>
 <body>
     <div class="sidebar">
@@ -137,21 +164,10 @@
         </div>
     </div>
     <div class="sidebar-toggle" onclick="toggleSidebar()">&#9664;</div>
-    <div class="container">
-        <!-- <div class="header">
-            <h1>Transaction History</h1>
-        </div> -->
-        {% block content %}{% endblock %}
+    <div class="content">
+        <div class="transaction-history">
+            {% block content %}{% endblock %}
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('sidebar-hidden');
-            document.querySelector('.container').classList.toggle('container-expanded');
-            const toggleIcon = document.querySelector('.sidebar-toggle');
-            toggleIcon.innerHTML = toggleIcon.innerHTML === '&#9664;' ? '&#9654;' : '&#9664;';
-            toggleIcon.style.left = toggleIcon.style.left === '260px' ? '10px' : '260px';
-        }
-    </script>
 </body>
 </html>

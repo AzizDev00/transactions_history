@@ -3,104 +3,87 @@
 {% block title %}Transaction History{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="chart-container">
-            <canvas id="transactionChart"></canvas>
-        </div>
-    </div>
+<h1>Transaction History</h1>
+<p>Balance ${{ balance }}</p>
+<div class="chart-container">
+    <div id="transactionChart" style="width: 600px; height: 400px;"></div>
 </div>
-
-<h1>Expenses</h1>
-<table class="transaction-table">
-    <tr>
-        <th>Date</th>
-        <th>Amount</th>
-        <th>Expense Type</th>
-        <th>Image</th>
-        <th>Actions</th>
-    </tr>
+<div class="transaction-cards">
     {% for expense in expenses %}
-    <tr>
-        <td>{{ expense.date }}</td>
-        <td>{{ expense.amount }}</td>
-        <td>
+    <div class="transaction-card animate__animated animate__fadeInUp">
+        <h5>{{ expense.date }}</h5>
+        <p class="amount text-danger">-{{ expense.amount }}</p>
+        <p>
             {% if expense.expense_type %}
                 {{ expense.expense_type.name }}
-            {% elif expense.manual_expense_type %}
+            {% else %}
                 {{ expense.manual_expense_type }}
             {% endif %}
-        </td>
-        <td>{% if expense.image %}<img src="{{ expense.image.url }}" alt="Expense Image" width="50">{% endif %}</td>
-        <td class="action-buttons">
+        </p>
+        {% if expense.image %}
+        <img src="{{ expense.image.url }}" alt="Expense Image" width="50">
+        {% endif %}
+        <div class="actions">
             <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>
             <a href="{% url 'delete_expense' expense.pk %}" class="delete">Delete</a>
-        </td>
-    </tr>
+        </div>
+    </div>
     {% endfor %}
-</table>
-
-<h1>Incomes</h1>
-<table class="transaction-table">
-    <tr>
-        <th>Date</th>
-        <th>Amount</th>
-        <th>Income Type</th>
-        <th>Image</th>
-        <th>Actions</th>
-    </tr>
     {% for income in incomes %}
-    <tr>
-        <td>{{ income.date }}</td>
-        <td>{{ income.amount }}</td>
-        <td>{{ income.income_type.name }}</td>
+    <div class="transaction-card animate__animated animate__fadeInUp">
+        <h5>{{ income.date }}</h5>
+        <p class="amount text-success">+{{ income.amount }}</p>
+        <p>{{ income.income_type.name }}</p>
         <td>{% if income.image %}<img src="{{ income.image.url }}" alt="Income Image" width="50">{% endif %}</td>
-        <td class="action-buttons">
+        <div class="actions">
             <a href="{% url 'edit_income' income.pk %}" class="edit">Edit</a>
             <a href="{% url 'delete_income' income.pk %}" class="delete">Delete</a>
-        </td>
-    </tr>
+        </div>
+    </div>
     {% endfor %}
-</table>
+</div>
 
+<h2>Import Transactions</h2>
+<form method="post" enctype="multipart/form-data" action="{% url 'import_transactions' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="file" class="form-label">Upload CSV file</label>
+        <input type="file" class="form-control" id="file" name="file" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Import</button>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
-    const ctx = document.getElementById('transactionChart').getContext('2d');
-    const transactionChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Expenses', 'Incomes'],
-            datasets: [{
-                label: 'Transactions',
-                data: [{{ total_expenses }}, {{ total_incomes }}],
-                backgroundColor: ['#dc3545', '#28a745'],
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        color: '#343a40'
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed !== null) {
-                                label += '$' + context.parsed;
-                            }
-                            return label;
-                        }
-                    }
-                }
+    google.charts.load('current', { packages: ['corechart'] });
+
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Transaction Type', 'Amount'],
+            ['Expenses', {{ total_expenses }}],
+            ['Incomes', {{ total_incomes }}]
+        ]);
+
+        var options = {
+            pieHole: 0.4,
+            backgroundColor: 'transparent',
+            chartArea: { width: '90%', height: '90%' },
+            slices: {
+                0: { color: '#dc3545' },
+                1: { color: '#28a745' }
+            },
+            legend: { position: 'right', alignment: 'center' },
+            animation: {
+                startup: true,
+                duration: 1000,
+                easing: 'out'
             }
-        }
-    });
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('transactionChart'));
+        chart.draw(data, options);
+    }
+
+    google.charts.setOnLoadCallback(drawChart);
 </script>
 {% endblock %}

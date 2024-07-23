@@ -3,63 +3,71 @@
 {% block title %}Transaction History{% endblock %}
 
 {% block content %}
-<h1>Transaction History</h1>
+<h1 class="animate__animated animate__fadeIn">Transaction History</h1>
 
-<form method="get" action="{% url 'history' %}">
+<form class="date-filter-form" method="get" action="{% url 'history' %}">
     <label for="start_date">Start Date:</label>
     <input type="date" id="start_date" name="start_date" required>
     <label for="end_date">End Date:</label>
     <input type="date" id="end_date" name="end_date" required>
-    <button type="submit">Filter</button>
+    <button type="submit" class="btn btn-primary">Filter</button>
 </form>
 
-<h2>Summary</h2>
+<h2 class="animate__animated animate__fadeIn">Summary</h2>
 <p>Total Incomes: ${{ total_incomes }}</p>
 <p>Total Expenses: ${{ total_expenses }}</p>
 
-<h2>Expenses</h2>
-<table class="transaction-table">
-    <tr>
-        <th>Date</th>
-        <th>Amount</th>
-        <th>Expense Type</th>
-        <th>Image</th>
-        <th>Actions</th>
-    </tr>
-    {% for expense in expenses %}
-    <tr>
-        <td>{{ expense.date }}</td>
-        <td>{{ expense.amount }}</td>
-        <td>{{ expense.expense_type }}</td>
-        <td>{% if expense.image %}<img src="{{ expense.image.url }}" alt="Expense Image" width="50">{% endif %}</td>
-        <td class="action-buttons">
-            <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>
-            <a href="{% url 'delete_expense' expense.pk %}" class="delete">Delete</a>
-        </td>
-    </tr>
-    {% endfor %}
+<h2 class="animate__animated animate__fadeIn">Expenses</h2>
+<table class="transaction-table table table-hover">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Expense Type</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for expense in expenses %}
+        <tr>
+            <td>{{ expense.date }}</td>
+            <td>{{ expense.amount }}</td>
+            <td>{{ expense.expense_type }}</td>
+            <td>{% if expense.image %}<img src="{{ expense.image.url }}" alt="Expense Image" width="50">{% endif %}</td>
+            <td class="action-buttons">
+                <a href="{% url 'edit_expense' expense.pk %}" class="btn btn-success">Edit</a>
+                <a href="{% url 'delete_expense' expense.pk %}" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
-<h2>Incomes</h2>
-<table class="transaction-table">
-    <tr>
-        <th>Date</th>
-        <th>Amount</th>
-        <th>Income Type</th>
-        <th>Image</th>
-        <th>Actions</th>
-    </tr>
-    {% for income in incomes %}
-    <tr>
-        <td>{{ income.date }}</td>
-        <td>{{ income.amount }}</td>
-        <td>{{ income.income_type.name }}</td>
-        <td>{% if income.image %}<img src="{{ income.image.url }}" alt="Income Image" width="50">{% endif %}</td>
-        <td class="action-buttons">
-            <a href="{% url 'edit_income' income.pk %}" class="edit">Edit</a>
-            <a href="{% url 'delete_income' income.pk %}" class="delete">Delete</a>
-        </td>
-    </tr>
-    {% endfor %}
+<h2 class="animate__animated animate__fadeIn">Incomes</h2>
+<table class="transaction-table table table-hover">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Income Type</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for income in incomes %}
+        <tr>
+            <td>{{ income.date }}</td>
+            <td>{{ income.amount }}</td>
+            <td>{{ income.income_type.name }}</td>
+            <td>{% if income.image %}<img src="{{ income.image.url }}" alt="Income Image" width="50">{% endif %}</td>
+            <td class="action-buttons">
+                <a href="{% url 'edit_income' income.pk %}" class="btn btn-success">Edit</a>
+                <a href="{% url 'delete_income' income.pk %}" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}
