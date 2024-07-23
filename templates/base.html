@@ -127,6 +127,15 @@
         .transaction-table th, .transaction-table td {
             padding: 10px;
         }
+        .balance {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .currency-selector {
+            margin: 10px 0;
+        }
     </style>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
@@ -151,16 +160,26 @@
 </head>
 <body>
     <div class="sidebar">
-        <button class="btn btn-success add-new" onclick="location.href='{% url 'add_expense' %}'">Add Expense</button>
-        <button class="btn btn-success add-new" onclick="location.href='{% url 'add_income' %}'">Add Income</button>
+        <div class="balance">
+            Balance: <span id="balance">{{ balance|floatformat:2 }} {{ currency }}</span>
+        </div>
+        <form method="get" action="{% url 'index' %}" class="currency-selector">
+            <select name="currency" onchange="this.form.submit()">
+                <option value="UZS" {% if currency == 'UZS' %}selected{% endif %}>UZS</option>
+                <option value="USD" {% if currency == 'USD' %}selected{% endif %}>USD</option>
+                <option value="RUB" {% if currency == 'RUB' %}selected{% endif %}>RUB</option>
+            </select>
+        </form>
+        <a href="{% url 'add_expense' %}">Add Expense</a>
+        <a href="{% url 'add_income' %}">Add Income</a>
+        <a href="{% url 'index' %}">Home</a>
         <a href="{% url 'history' %}">Transaction History</a>
         <a href="{% url 'users:profile' %}">Profile</a>
-        <a href="{% url 'users:edit-profile' %}">Edit Profile</a>
-        <a href="{% url 'users:logout' %}">Logout</a>
         <div class="mt-auto w-100">
-            <a href="https://github.com/AzizDev00/transactions_history">Code View</a>
-            <a href="https://github.com/AzizDev00/transactions_history">Give Feedback</a>
-            <a href="https://t.me/azizbek2308">Help Center</a>
+            <a href="https://github.com/AzizDev00/transactions_history" target="_blank">Code View</a>
+            <a href="https://github.com/AzizDev00/transactions_history" target="_blank">Give Feedback</a>
+            <a href="https://t.me/azizbek2308" target="_blank">Help Center</a>
+            <a href="{% url 'users:logout' %}">Logout</a>
         </div>
     </div>
     <div class="sidebar-toggle" onclick="toggleSidebar()">&#9664;</div>

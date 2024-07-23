@@ -34,7 +34,9 @@
         <h5>{{ income.date }}</h5>
         <p class="amount text-success">+{{ income.amount }}</p>
         <p>{{ income.income_type.name }}</p>
-        <td>{% if income.image %}<img src="{{ income.image.url }}" alt="Income Image" width="50">{% endif %}</td>
+        {% if income.image %}
+        <img src="{{ income.image.url }}" alt="Income Image" width="50">
+        {% endif %}
         <div class="actions">
             <a href="{% url 'edit_income' income.pk %}" class="edit">Edit</a>
             <a href="{% url 'delete_income' income.pk %}" class="delete">Delete</a>
@@ -80,6 +82,7 @@
                 easing: 'out'
             }
         };
+        
         var chart = new google.visualization.PieChart(document.getElementById('transactionChart'));
         chart.draw(data, options);
     }

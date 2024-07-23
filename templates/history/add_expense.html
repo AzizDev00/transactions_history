@@ -29,9 +29,15 @@
         <div>
             <label for="manual_expense_type">Or Enter Expense Type Manually</label>
             {{ form.manual_expense_type }}
-            <label for="manual_expense_image">Upload Image for Manual Expense Type</label>
-            {{ form.manual_expense_image }}
         </div>
+    </div>
+    <div>
+        <label for="currency">Currency:</label>
+        {{ form.currency }}
+    </div>
+    <div>
+        <label for="payment_method">Payment Method:</label>
+        {{ form.payment_method }}
     </div>
     <div>
         {{ form.image.label_tag }}

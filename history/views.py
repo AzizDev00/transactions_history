@@ -1,5 +1,5 @@
-# views.py
 import csv
+from decimal import Decimal
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -8,19 +8,42 @@ from .models import AccountBalance, Expense, ExpenseType, Income, IncomeType, Re
 from .forms import ExpenseForm, IncomeForm, ReportForm, ExpenseTypeForm
 from datetime import datetime
 
+CURRENCY_RATES = {
+    'USD': 12587.08,
+    'RUB': 143.28,
+    'UZS': 1
+}
+
+def convert_to_uzs(amount, currency):
+    if currency == 'USD':
+        return amount * Decimal('12000.0')
+    elif currency == 'RUB':
+        return amount * Decimal('150.0')
+    elif currency == 'UZS':
+        return amount
+    else:
+        raise ValueError("Unsupported currency type")
+    
+@login_required
 def index(request):
     expenses = Expense.objects.all()
     incomes = Income.objects.all()
-    
-    total_expenses = sum(expense.amount for expense in expenses)
-    total_incomes = sum(income.amount for income in incomes)
 
+    total_expenses = sum(convert_to_uzs(expense.amount, expense.currency) for expense in expenses)
+    total_incomes = sum(convert_to_uzs(income.amount, income.currency) for income in incomes)
+    
+    balance = total_incomes - total_expenses
+    
+    selected_currency = request.GET.get('currency', 'UZS')
+    converted_balance = balance / Decimal(CURRENCY_RATES[selected_currency])
+    
     context = {
         'expenses': expenses,
         'incomes': incomes,
         'total_expenses': total_expenses,
         'total_incomes': total_incomes,
-        'balance': total_incomes - total_expenses
+        'balance': converted_balance,
+        'currency': selected_currency,
     }
     return render(request, 'history/index.html', context)
 
@@ -43,10 +66,11 @@ def add_expense(request):
                 messages.error(request, 'Please select or enter an expense type.')
                 return render(request, 'history/add_expense.html', {'form': form, 'expense_types': ExpenseType.objects.all()})
 
-            account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
-            if account_balance.balance >= expense.amount:
+            account_balance, created = AccountBalance.objects.get_or_create(user=request.user, wallet_type='default')
+            expense_amount_in_uzs = convert_to_uzs(expense.amount, expense.currency)
+            if account_balance.balance >= expense_amount_in_uzs:
                 expense.account_balance = account_balance
-                account_balance.balance -= expense.amount
+                account_balance.balance -= expense_amount_in_uzs
                 account_balance.save()
                 expense.save()
                 messages.success(request, 'Expense added successfully.')
@@ -75,8 +99,9 @@ def add_income(request):
                     income_type.save()
                 income.income_type = income_type
 
-            income.account_balance = AccountBalance.objects.get_or_create(user=request.user)[0]
-            income.account_balance.balance += income.amount
+            income.account_balance = AccountBalance.objects.get_or_create(user=request.user, wallet_type='default')[0]
+            income_amount_in_uzs = convert_to_uzs(income.amount, income.currency)
+            income.account_balance.balance += income_amount_in_uzs
             income.account_balance.save()
             income.save()
             messages.success(request, 'Income added successfully.')
