@@ -3,11 +3,66 @@
 {% block title %}Edit Expense{% endblock %}
 
 {% block content %}
-<h1>Edit Expense</h1>
-<form method="post">
+<h1 class="edit-title">Edit Expense</h1>
+<form method="post" class="edit-form">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Save Changes</button>
+    <button type="submit" class="save-button">Save Changes</button>
 </form>
-<a href="{% url 'index' %}">Back to Home</a>
+<a href="{% url 'index' %}" class="back-link">Back to Home</a>
+
+<style>
+    .edit-title {
+        font-size: 2em;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .edit-form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background: #f9f9f9;
+    }
+    .edit-form div {
+        margin-bottom: 15px;
+    }
+    .edit-form label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .edit-form input[type="text"],
+    .edit-form input[type="date"],
+    .edit-form input[type="file"],
+    .edit-form select {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .save-button {
+        display: inline-block;
+        padding: 10px 15px;
+        font-size: 1em;
+        color: #fff;
+        background: #007bff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .save-button:hover {
+        background: #0056b3;
+    }
+    .back-link {
+        display: inline-block;
+        margin-top: 10px;
+        text-decoration: none;
+        color: #007bff;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
 {% endblock %}

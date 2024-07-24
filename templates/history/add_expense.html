@@ -3,26 +3,22 @@
 {% block title %}Add Expense{% endblock %}
 
 {% block content %}
-<h1>Add Expense</h1>
-<form method="post" enctype="multipart/form-data" id="expense-form">
+<h1 class="form-title">Add Expense</h1>
+<form method="post" enctype="multipart/form-data" id="expense-form" class="expense-form">
     {% csrf_token %}
-    <div>
+    <div class="form-group">
         {{ form.amount.label_tag }}
         {{ form.amount }}
     </div>
-    <div>
-        <label for="currency">Currency:</label>
-        {{ form.currency }}
-    </div>
-    <div>
+    <div class="form-group">
         <label for="expense_type">Expense Type</label>
-        <div id="expense-type-images">
+        <div id="expense-type-images" class="expense-type-images">
             {% for expense_type in expense_types %}
             <div class="expense-type-option">
-                <input type="radio" id="expense_type_{{ expense_type.id }}" name="expense_type" value="{{ expense_type.id }}" style="display: none;">
+                <input type="radio" id="expense_type_{{ expense_type.id }}" name="expense_type" value="{{ expense_type.id }}" class="expense-type-radio">
                 <label for="expense_type_{{ expense_type.id }}">
                     {% if expense_type.image %}
-                    <img src="{{ expense_type.image.url }}" alt="{{ expense_type.name }}" title="{{ expense_type.name }}">
+                    <img src="{{ expense_type.image.url }}" alt="{{ expense_type.name }}" title="{{ expense_type.name }}" class="expense-type-image">
                     {% else %}
                     <span>{{ expense_type.name }}</span>
                     {% endif %}
@@ -30,37 +26,38 @@
             </div>
             {% endfor %}
         </div>
-        <div>
+        <div class="form-group">
             <label for="manual_expense_type">Or Enter Expense Type Manually</label>
             {{ form.manual_expense_type }}
         </div>
     </div>
-    <div>
+    <div class="form-group">
         <label for="currency">Currency:</label>
         {{ form.currency }}
     </div>
-    <div>
+    <div class="form-group">
         <label for="payment_method">Payment Method:</label>
         {{ form.payment_method }}
     </div>
-    <div>
+    <div class="form-group">
         {{ form.image.label_tag }}
         {{ form.image }}
     </div>
-    <div>
+    <div class="form-group">
         {{ form.date.label_tag }}
         {{ form.date }}
     </div>
-    <button type="submit">Add Expense</button>
+    <button type="submit" class="submit-button">Add Expense</button>
 </form>
-<a href="{% url 'index' %}">Back to Home</a>
+<a href="{% url 'index' %}" class="back-link">Back to Home</a>
 
 <style>
-    h1 {
+    .form-title {
         font-size: 2em;
         margin-bottom: 20px;
+        text-align: center;
     }
-    form {
+    .expense-form {
         max-width: 600px;
         margin: 0 auto;
         padding: 20px;
@@ -68,24 +65,24 @@
         border-radius: 10px;
         background: #f9f9f9;
     }
-    div {
+    .form-group {
         margin-bottom: 15px;
     }
-    label {
+    .expense-form label {
         display: block;
         margin-bottom: 5px;
     }
-    input[type="text"],
-    input[type="date"],
-    input[type="file"],
-    select {
+    .expense-form input[type="text"],
+    .expense-form input[type="date"],
+    .expense-form input[type="file"],
+    .expense-form select {
         width: 100%;
         padding: 8px;
         box-sizing: border-box;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
-    button {
+    .submit-button {
         display: inline-block;
         padding: 10px 15px;
         font-size: 1em;
@@ -95,19 +92,19 @@
         border-radius: 5px;
         cursor: pointer;
     }
-    button:hover {
+    .submit-button:hover {
         background: #0056b3;
     }
-    a {
+    .back-link {
         display: inline-block;
         margin-top: 10px;
         text-decoration: none;
         color: #007bff;
     }
-    a:hover {
+    .back-link:hover {
         text-decoration: underline;
     }
-    #expense-type-images {
+    .expense-type-images {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
@@ -115,6 +112,9 @@
     .expense-type-option {
         display: inline-block;
         cursor: pointer;
+    }
+    .expense-type-radio {
+        display: none;
     }
     .expense-type-option img {
         border: 2px solid transparent;
@@ -124,12 +124,10 @@
         object-fit: cover;
         transition: border-color 0.3s;
     }
-    .expense-type-option input[type="radio"]:checked + label img {
+    .expense-type-radio:checked + label img {
         border-color: #007bff;
     }
 </style>
-{% endblock %}
-
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -142,18 +140,18 @@
         const expenseTypeOptions = document.querySelectorAll('.expense-type-option');
         expenseTypeOptions.forEach(option => {
             option.addEventListener('click', () => {
-                const radioInput = option.querySelector('input[type="radio"]');
+                const radioInput = option.querySelector('.expense-type-radio');
                 radioInput.checked = true;
                 document.querySelector('#id_manual_expense_type').value = '';
             });
         });
 
         document.querySelector('#id_manual_expense_type').addEventListener('input', function() {
-            const checkedRadio = document.querySelector('.expense-type-option input[type="radio"]:checked');
+            const checkedRadio = document.querySelector('.expense-type-option .expense-type-radio:checked');
             if (checkedRadio) {
                 checkedRadio.checked = false;
             }
         });
     });
 </script>
-
+{% endblock %}

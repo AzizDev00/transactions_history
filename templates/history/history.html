@@ -14,8 +14,8 @@
 </form>
 
 <h2 class="animate__animated animate__fadeIn">Summary</h2>
-<p>Total Incomes: ${{ total_incomes|floatformat:2 }}</p>
-<p>Total Expenses: ${{ total_expenses|floatformat:2 }}</p>
+<p>Total Incomes: {{ total_incomes|floatformat:2 }} {{ currency }}</p>
+<p>Total Expenses: {{ total_expenses|floatformat:2 }} {{ currency }}</p>
 
 <h2 class="animate__animated animate__fadeIn">Expenses</h2>
 <table class="transaction-table table table-hover">

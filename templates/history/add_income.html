@@ -3,22 +3,22 @@
 {% block title %}Add Income{% endblock %}
 
 {% block content %}
-<h1>Add Income</h1>
-<form method="post" enctype="multipart/form-data" id="income-form">
+<h1 class="form-title">Add Income</h1>
+<form method="post" enctype="multipart/form-data" id="income-form" class="income-form">
     {% csrf_token %}
-    <div>
+    <div class="form-group">
         {{ form.amount.label_tag }}
         {{ form.amount }}
     </div>
-    <div>
+    <div class="form-group">
         <label for="income_type">Income Type</label>
-        <div id="income-type-images">
+        <div id="income-type-images" class="income-type-images">
             {% for income_type in income_types %}
             <div class="income-type-option">
-                <input type="radio" id="income_type_{{ income_type.id }}" name="income_type" value="{{ income_type.id }}" style="display: none;">
+                <input type="radio" id="income_type_{{ income_type.id }}" name="income_type" value="{{ income_type.id }}" class="income-type-radio">
                 <label for="income_type_{{ income_type.id }}">
                     {% if income_type.image %}
-                    <img src="{{ income_type.image.url }}" alt="{{ income_type.name }}" title="{{ income_type.name }}">
+                    <img src="{{ income_type.image.url }}" alt="{{ income_type.name }}" title="{{ income_type.name }}" class="income-type-image">
                     {% else %}
                     <span>{{ income_type.name }}</span>
                     {% endif %}
@@ -26,39 +26,40 @@
             </div>
             {% endfor %}
         </div>
-        <div>
+        <div class="form-group">
             <label for="manual_income_type">Or Enter Income Type Manually</label>
             {{ form.manual_income_type }}
             <label for="manual_income_image">Upload Image for Manual Income Type</label>
             {{ form.manual_income_image }}
         </div>
     </div>
-    <div>
+    <div class="form-group">
         <label for="currency">Currency:</label>
         {{ form.currency }}
     </div>
-    <div>
+    <div class="form-group">
         <label for="payment_method">Payment Method:</label>
         {{ form.payment_method }}
     </div>
-    <div>
+    <div class="form-group">
         {{ form.image.label_tag }}
         {{ form.image }}
     </div>
-    <div>
+    <div class="form-group">
         {{ form.date.label_tag }}
         {{ form.date }}
     </div>
-    <button type="submit">Add Income</button>
+    <button type="submit" class="submit-button">Add Income</button>
 </form>
-<a href="{% url 'index' %}">Back to Home</a>
+<a href="{% url 'index' %}" class="back-link">Back to Home</a>
 
 <style>
-    h1 {
+    .form-title {
         font-size: 2em;
         margin-bottom: 20px;
+        text-align: center;
     }
-    form {
+    .income-form {
         max-width: 600px;
         margin: 0 auto;
         padding: 20px;
@@ -66,24 +67,24 @@
         border-radius: 10px;
         background: #f9f9f9;
     }
-    div {
+    .form-group {
         margin-bottom: 15px;
     }
-    label {
+    .income-form label {
         display: block;
         margin-bottom: 5px;
     }
-    input[type="text"],
-    input[type="date"],
-    input[type="file"],
-    select {
+    .income-form input[type="text"],
+    .income-form input[type="date"],
+    .income-form input[type="file"],
+    .income-form select {
         width: 100%;
         padding: 8px;
         box-sizing: border-box;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
-    button {
+    .submit-button {
         display: inline-block;
         padding: 10px 15px;
         font-size: 1em;
@@ -93,19 +94,19 @@
         border-radius: 5px;
         cursor: pointer;
     }
-    button:hover {
+    .submit-button:hover {
         background: #0056b3;
     }
-    a {
+    .back-link {
         display: inline-block;
         margin-top: 10px;
         text-decoration: none;
         color: #007bff;
     }
-    a:hover {
+    .back-link:hover {
         text-decoration: underline;
     }
-    #income-type-images {
+    .income-type-images {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
@@ -114,14 +115,18 @@
         display: inline-block;
         cursor: pointer;
     }
-    .income-type-option img {
+    .income-type-radio {
+        display: none;
+    }
+    .income-type-image {
         border: 2px solid transparent;
         border-radius: 5px;
         width: 100px;
         height: 100px;
         object-fit: cover;
+        transition: border-color 0.3s;
     }
-    .income-type-option input[type="radio"]:checked + label img {
+    .income-type-radio:checked + label .income-type-image {
         border-color: #007bff;
     }
 </style>
@@ -130,7 +135,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const manualInput = document.getElementById('id_manual_income_type');
     const manualImageInput = document.getElementById('id_manual_income_image');
-    const incomeTypeRadios = document.querySelectorAll('input[name="income_type"]');
+    const incomeTypeRadios = document.querySelectorAll('.income-type-radio');
     
     manualInput.addEventListener('input', function() {
         if (this.value.trim().length > 0) {

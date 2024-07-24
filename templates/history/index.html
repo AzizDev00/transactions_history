@@ -3,7 +3,29 @@
 {% block title %}Transaction History{% endblock %}
 
 {% block content %}
-
+<style>
+    .edit, .delete-button {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 1em;
+    color: #fff;
+    background: #007bff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+.edit:hover {
+    background: #0056b3;
+}
+.delete-button {
+    background: #dc3545;
+}
+.delete-button:hover {
+    background: #c82333;
+}
+</style>
 <h1>Transaction History</h1>
 
 <div class="btn-group" role="group" aria-label="View Options">
@@ -40,7 +62,7 @@
         </div>
         <div class="actions">
             <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>
-            <a href="{% url 'delete_expense' expense.pk %}" class="delete">Delete</a>
+            <a href="{% url 'delete_expense' expense.id %}" class="delete-button" data-action="{% url 'delete_expense' expense.id %}">Delete</a>        </div>
         </div>
     </div>
     {% endfor %}
@@ -62,14 +84,14 @@
         </div>
         <div class="actions">
             <a href="{% url 'edit_income' income.pk %}" class="edit">Edit</a>
-            <a href="{% url 'delete_income' income.pk %}" class="delete">Delete</a>
+            <a href="{% url 'delete_income' income.id %}" class="delete-button" data-action="{% url 'delete_income' income.id %}">Delete</a>
         </div>
     </div>
     {% endfor %}
 </div>
 
-<h2>Import Transactions</h2>
-<form method="post" enctype="multipart/form-data" action="{% url 'import_transactions' %}">
+<!-- <h2>Import Transactions</h2>
+<form method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <input type="hidden" name="currency" value="{{ currency }}">
     <div class="mb-3">
@@ -77,7 +99,7 @@
         <input type="file" class="form-control" id="file" name="file" required>
     </div>
     <button type="submit" class="btn btn-primary">Import</button>
-</form>
+</form> -->
 {% endblock %}
 
 {% block extra_scripts %}
