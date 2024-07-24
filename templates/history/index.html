@@ -3,6 +3,7 @@
 {% block title %}Transaction History{% endblock %}
 
 {% block content %}
+
 <h1>Transaction History</h1>
 
 <div class="btn-group" role="group" aria-label="View Options">
@@ -18,18 +19,25 @@
 <div class="transaction-cards">
     {% for expense in expenses %}
     <div class="transaction-card">
-        <h5>{{ expense.date }}</h5>
-        <p class="amount text-danger">-{{ expense.amount|floatformat:2 }} {{ currency }}</p>
-        <p>
-            {% if expense.expense_type %}
-                {{ expense.expense_type.name }}
-            {% else %}
-                {{ expense.manual_expense_type }}
+        <div style="display: flex; justify-content: space-between;" class="t-card-wrap">
+            <div class="t-cards-wrap">
+                <h5>{{ expense.date }}</h5>
+                <p class="amount text-danger">-{{ total_expenses|floatformat:2 }} {{ currency }}</p>
+                <p>
+                    {% if expense.expense_type %}
+                        {{ expense.expense_type.name }}
+                    {% else %}
+                        {{ expense.manual_expense_type }}
+                    {% endif %}
+                </p>
+            </div>
+            {% if expense.image %}
+            <img style="max-height: 75px;" src="{{ expense.image.url }}" alt="Expense Image" width="80">
             {% endif %}
-        </p>
-        {% if expense.image %}
-        <img src="{{ expense.image.url }}" alt="Expense Image" width="50">
-        {% endif %}
+            {% if expense.expense_type.image %}
+            <img style="max-height: 75px;" src="{{ expense.expense_type.image.url }}" alt="Expense Image" width="80">
+            {% endif %}
+        </div>
         <div class="actions">
             <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>
             <a href="{% url 'delete_expense' expense.pk %}" class="delete">Delete</a>
@@ -38,12 +46,20 @@
     {% endfor %}
     {% for income in incomes %}
     <div class="transaction-card">
-        <h5>{{ income.date }}</h5>
-        <p class="amount text-success">+{{ income.amount|floatformat:2 }} {{ currency }}</p>
-        <p>{{ income.income_type.name }}</p>
-        {% if income.image %}
-        <img src="{{ income.image.url }}" alt="Income Image" width="50">
-        {% endif %}
+        <div style="display: flex; justify-content: space-between;" class="t-cards-wrap">
+            <div class="t-card-wrap">
+                <h5>{{ income.date }}</h5>
+                <p class="amount text-success">+{{ total_incomes|floatformat:2 }} {{ currency }}</p>
+                <p>{{ income.income_type.name }}</p>
+            </div>
+
+            {% if income.image %}
+            <img style="max-height: 75px;" src="{{ income.image.url }}" alt="Income Image" width="80">
+            {% endif %}
+            {% if income.income_type.image %}
+            <img style="max-height: 75px;" src="{{ income.income_type.image.url }}" alt="Income Image" width="80">
+            {% endif %}
+        </div>
         <div class="actions">
             <a href="{% url 'edit_income' income.pk %}" class="edit">Edit</a>
             <a href="{% url 'delete_income' income.pk %}" class="delete">Delete</a>
@@ -55,6 +71,7 @@
 <h2>Import Transactions</h2>
 <form method="post" enctype="multipart/form-data" action="{% url 'import_transactions' %}">
     {% csrf_token %}
+    <input type="hidden" name="currency" value="{{ currency }}">
     <div class="mb-3">
         <label for="file" class="form-label">Upload CSV file</label>
         <input type="file" class="form-control" id="file" name="file" required>
@@ -122,6 +139,5 @@
             transactionChart.update();
         };
     });
-    
 </script>
 {% endblock %}

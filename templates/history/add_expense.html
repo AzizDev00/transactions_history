@@ -11,6 +11,10 @@
         {{ form.amount }}
     </div>
     <div>
+        <label for="currency">Currency:</label>
+        {{ form.currency }}
+    </div>
+    <div>
         <label for="expense_type">Expense Type</label>
         <div id="expense-type-images">
             {% for expense_type in expense_types %}
@@ -124,6 +128,8 @@
         border-color: #007bff;
     }
 </style>
+{% endblock %}
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -138,7 +144,7 @@
             option.addEventListener('click', () => {
                 const radioInput = option.querySelector('input[type="radio"]');
                 radioInput.checked = true;
-                document.querySelector('#id_manual_expense_type').value = ''; // Clear manual input when an image is selected
+                document.querySelector('#id_manual_expense_type').value = '';
             });
         });
 
@@ -150,4 +156,4 @@
         });
     });
 </script>
-{% endblock %}
+
