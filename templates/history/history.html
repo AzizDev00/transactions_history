@@ -157,7 +157,7 @@
             {% for expense in expenses %}
             <tr>
                 <td>{{ expense.date }}</td>
-                <td>{{ expense.amount|floatformat:2 }} {{ currency }}</td>
+                <td>{{ expense.amount|floatformat:2 }} {{ expense.currency }}</td>
                 <td>{{ expense.expense_type }}</td>
                 <td>{% if expense.image %}<img src="{{ expense.image.url }}" alt="Expense Image" width="50">{% endif %}</td>
                 <td class="action-buttons">
@@ -184,7 +184,7 @@
             {% for income in incomes %}
             <tr>
                 <td>{{ income.date }}</td>
-                <td>{{ income.amount|floatformat:2 }} {{ currency }}</td>
+                <td>{{ income.amount|floatformat:2 }} {{ income.currency }}</td>
                 <td>{{ income.income_type.name }}</td>
                 <td>
                     {% if income.image %}

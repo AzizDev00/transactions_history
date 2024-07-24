@@ -39,18 +39,22 @@
 
     .transaction-cards {
         display: flex;
-        flex-direction: column;
+        flex-wrap: wrap;
         gap: 15px;
+        justify-content: center;
     }
 
     .transaction-card {
         display: flex;
         flex-direction: column;
+        width: calc(25% - 15px); /* 4 cards per row with spacing */
         padding: 15px;
         border-radius: 10px;
         background: #fff;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-sizing: border-box;
+        position: relative; /* Added to position the image properly */
     }
 
     .transaction-card:hover {
@@ -84,6 +88,9 @@
 
     .actions {
         margin-top: 10px;
+        display: flex;
+        flex-direction: column; /* Align actions vertically */
+        gap: 10px; /* Add space between buttons */
     }
 
     .edit, .delete-button {
@@ -95,7 +102,6 @@
         border-radius: 5px;
         text-decoration: none;
         cursor: pointer;
-        margin-right: 10px;
         transition: background-color 0.3s ease;
     }
 
@@ -114,6 +120,14 @@
     .delete-button:hover {
         background: #c82333;
     }
+
+    /* Style for images within the transaction card */
+    .transaction-card img {
+        max-height: 75px;
+        width: auto;
+        margin-bottom: 10px; /* Add space below the image */
+        align-self: center; /* Center align images horizontally */
+    }
 </style>
 
 <h1>Transaction History</h1>
@@ -131,10 +145,16 @@
 <div class="transaction-cards">
     {% for expense in expenses %}
     <div class="transaction-card">
+        {% if expense.image %}
+        <img src="{{ expense.image.url }}" alt="Expense Image" width="80">
+        {% endif %}
+        {% if expense.expense_type.image %}
+        <img src="{{ expense.expense_type.image.url }}" alt="Expense Image" width="80">
+        {% endif %}
         <div class="t-card-wrap">
             <div class="t-cards-wrap">
                 <h5>{{ expense.date }}</h5>
-                <p class="amount text-danger">-{{ total_expenses|floatformat:2 }} {{ currency }}</p>
+                <p class="amount text-danger">-{{ expense.amount|floatformat:2 }} {{ expense.currency }}</p>
                 <p>
                     {% if expense.expense_type %}
                         {{ expense.expense_type.name }}
@@ -143,12 +163,6 @@
                     {% endif %}
                 </p>
             </div>
-            {% if expense.image %}
-            <img style="max-height: 75px;" src="{{ expense.image.url }}" alt="Expense Image" width="80">
-            {% endif %}
-            {% if expense.expense_type.image %}
-            <img style="max-height: 75px;" src="{{ expense.expense_type.image.url }}" alt="Expense Image" width="80">
-            {% endif %}
         </div>
         <div class="actions">
             <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>
@@ -158,18 +172,18 @@
     {% endfor %}
     {% for income in incomes %}
     <div class="transaction-card">
+        {% if income.image %}
+        <img src="{{ income.image.url }}" alt="Income Image" width="80">
+        {% endif %}
+        {% if income.income_type.image %}
+        <img src="{{ income.income_type.image.url }}" alt="Income Image" width="80">
+        {% endif %}
         <div class="t-card-wrap">
             <div class="t-cards-wrap">
                 <h5>{{ income.date }}</h5>
-                <p class="amount text-success">+{{ total_incomes|floatformat:2 }} {{ currency }}</p>
+                <p class="amount text-success">+{{ income.amount|floatformat:2 }} {{ income.currency }}</p>
                 <p>{{ income.income_type.name }}</p>
             </div>
-            {% if income.image %}
-            <img style="max-height: 75px;" src="{{ income.image.url }}" alt="Income Image" width="80">
-            {% endif %}
-            {% if income.income_type.image %}
-            <img style="max-height: 75px;" src="{{ income.income_type.image.url }}" alt="Income Image" width="80">
-            {% endif %}
         </div>
         <div class="actions">
             <a href="{% url 'edit_income' income.pk %}" class="edit">Edit</a>
