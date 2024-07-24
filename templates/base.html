@@ -164,6 +164,7 @@
             Balance: <span id="balance">{{ balance|floatformat:2 }} {{ currency }}</span>
         </div>
         <form method="get" action="{% url 'index' %}" class="currency-selector">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
             <select name="currency" onchange="this.form.submit()">
                 <option value="UZS" {% if currency == 'UZS' %}selected{% endif %}>UZS</option>
                 <option value="USD" {% if currency == 'USD' %}selected{% endif %}>USD</option>

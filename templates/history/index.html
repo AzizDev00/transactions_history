@@ -4,15 +4,22 @@
 
 {% block content %}
 <h1>Transaction History</h1>
-<p>Balance ${{ balance }}</p>
-<div class="chart-container">
-    <div id="transactionChart" style="width: 600px; height: 400px;"></div>
+
+<div class="btn-group" role="group" aria-label="View Options">
+    <button id="view-all" class="btn btn-primary" onclick="updateChart('all')">All</button>
+    <button id="view-expenses" class="btn btn-danger" onclick="updateChart('expenses')">Expenses</button>
+    <button id="view-incomes" class="btn btn-success" onclick="updateChart('incomes')">Incomes</button>
 </div>
+
+<div class="chart-container" style="position: relative; height:40vh; width:80vw">
+    <canvas id="transactionChart"></canvas>
+</div>
+
 <div class="transaction-cards">
     {% for expense in expenses %}
-    <div class="transaction-card animate__animated animate__fadeInUp">
+    <div class="transaction-card">
         <h5>{{ expense.date }}</h5>
-        <p class="amount text-danger">-{{ expense.amount }}</p>
+        <p class="amount text-danger">-{{ expense.amount|floatformat:2 }} {{ currency }}</p>
         <p>
             {% if expense.expense_type %}
                 {{ expense.expense_type.name }}
@@ -30,9 +37,9 @@
     </div>
     {% endfor %}
     {% for income in incomes %}
-    <div class="transaction-card animate__animated animate__fadeInUp">
+    <div class="transaction-card">
         <h5>{{ income.date }}</h5>
-        <p class="amount text-success">+{{ income.amount }}</p>
+        <p class="amount text-success">+{{ income.amount|floatformat:2 }} {{ currency }}</p>
         <p>{{ income.income_type.name }}</p>
         {% if income.image %}
         <img src="{{ income.image.url }}" alt="Income Image" width="50">
@@ -57,36 +64,64 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    google.charts.load('current', { packages: ['corechart'] });
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('transactionChart').getContext('2d');
 
-    function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-            ['Transaction Type', 'Amount'],
-            ['Expenses', {{ total_expenses }}],
-            ['Incomes', {{ total_incomes }}]
-        ]);
-
-        var options = {
-            pieHole: 0.4,
-            backgroundColor: 'transparent',
-            chartArea: { width: '90%', height: '90%' },
-            slices: {
-                0: { color: '#dc3545' },
-                1: { color: '#28a745' }
-            },
-            legend: { position: 'right', alignment: 'center' },
-            animation: {
-                startup: true,
-                duration: 1000,
-                easing: 'out'
-            }
+        let allData = {
+            labels: ['Expenses', 'Incomes'],
+            datasets: [{
+                data: [{{ total_expenses }}, {{ total_incomes }}],
+                backgroundColor: ['#ff6384', '#36a2eb'],
+                hoverBackgroundColor: ['#ff6384', '#36a2eb']
+            }]
         };
-        
-        var chart = new google.visualization.PieChart(document.getElementById('transactionChart'));
-        chart.draw(data, options);
-    }
 
-    google.charts.setOnLoadCallback(drawChart);
+        let expenseData = {
+            labels: ['Expenses'],
+            datasets: [{
+                data: [{{ total_expenses }}],
+                backgroundColor: ['#ff6384'],
+                hoverBackgroundColor: ['#ff6384']
+            }]
+        };
+
+        let incomeData = {
+            labels: ['Incomes'],
+            datasets: [{
+                data: [{{ total_incomes }}],
+                backgroundColor: ['#36a2eb'],
+                hoverBackgroundColor: ['#36a2eb']
+            }]
+        };
+
+        let transactionChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: allData,
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'top',
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+
+        window.updateChart = function (view) {
+            if (view === 'all') {
+                transactionChart.data = allData;
+            } else if (view === 'expenses') {
+                transactionChart.data = expenseData;
+            } else if (view === 'incomes') {
+                transactionChart.data = incomeData;
+            }
+            transactionChart.update();
+        };
+    });
+    
 </script>
 {% endblock %}
