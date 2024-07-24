@@ -169,7 +169,7 @@
 <body>
     <div class="sidebar">
         <div class="balance">
-            Balance: <span id="balance">{{ balance|floatformat:2 }} {{ currency }}</span>
+            <p style="font-weight: 200;">Balance:</p> <h5 id="balance">{{ balance|floatformat:2 }} {{ currency }}</h5>
         </div>
         <form method="get" action="{% url 'index' %}" class="currency-selector">
             <input type="hidden" name="next" value="{{ request.get_full_path }}">

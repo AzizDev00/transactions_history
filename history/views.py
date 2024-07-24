@@ -104,7 +104,9 @@ def add_expense(request):
             expense_amount_in_uzs = convert_to_uzs(expense.amount, expense.currency)
             if account_balance.balance >= expense_amount_in_uzs:
                 expense.account_balance = account_balance
+                logger.debug(f"Before saving, Account Balance: {account_balance.balance}")
                 account_balance.balance -= expense_amount_in_uzs
+                logger.debug(f"After saving, Account Balance: {account_balance.balance}")
                 account_balance.save()
                 expense.save()
                 messages.success(request, 'Expense added successfully.')
