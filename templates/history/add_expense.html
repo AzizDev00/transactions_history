@@ -3,155 +3,195 @@
 {% block title %}Add Expense{% endblock %}
 
 {% block content %}
-<h1 class="form-title">Add Expense</h1>
-<form method="post" enctype="multipart/form-data" id="expense-form" class="expense-form">
-    {% csrf_token %}
-    <div class="form-group">
-        {{ form.amount.label_tag }}
-        {{ form.amount }}
-    </div>
-    <div class="form-group">
-        <label for="expense_type">Expense Type</label>
-        <div id="expense-type-images" class="expense-type-images">
-            {% for expense_type in expense_types %}
-            <div class="expense-type-option">
-                <input type="radio" id="expense_type_{{ expense_type.id }}" name="expense_type" value="{{ expense_type.id }}" class="expense-type-radio">
-                <label for="expense_type_{{ expense_type.id }}">
-                    {% if expense_type.image %}
-                    <img src="{{ expense_type.image.url }}" alt="{{ expense_type.name }}" title="{{ expense_type.name }}" class="expense-type-image">
-                    {% else %}
-                    <span>{{ expense_type.name }}</span>
-                    {% endif %}
-                </label>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="form-group">
-            <label for="manual_expense_type">Or Enter Expense Type Manually</label>
-            {{ form.manual_expense_type }}
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="currency">Currency:</label>
-        {{ form.currency }}
-    </div>
-    <div class="form-group">
-        <label for="payment_method">Payment Method:</label>
-        {{ form.payment_method }}
-    </div>
-    <div class="form-group">
-        {{ form.image.label_tag }}
-        {{ form.image }}
-    </div>
-    <div class="form-group">
-        {{ form.date.label_tag }}
-        {{ form.date }}
-    </div>
-    <button type="submit" class="submit-button">Add Expense</button>
-</form>
-<a href="{% url 'index' %}" class="back-link">Back to Home</a>
-
-<style>
-    .form-title {
-        font-size: 2em;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    .expense-form {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        background: #f9f9f9;
-    }
-    .form-group {
-        margin-bottom: 15px;
-    }
-    .expense-form label {
-        display: block;
-        margin-bottom: 5px;
-    }
-    .expense-form input[type="text"],
-    .expense-form input[type="date"],
-    .expense-form input[type="file"],
-    .expense-form select {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    .submit-button {
-        display: inline-block;
-        padding: 10px 15px;
-        font-size: 1em;
-        color: #fff;
-        background: #007bff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .submit-button:hover {
-        background: #0056b3;
-    }
-    .back-link {
-        display: inline-block;
-        margin-top: 10px;
-        text-decoration: none;
-        color: #007bff;
-    }
-    .back-link:hover {
-        text-decoration: underline;
-    }
-    .expense-type-images {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .expense-type-option {
-        display: inline-block;
-        cursor: pointer;
-    }
-    .expense-type-radio {
-        display: none;
-    }
-    .expense-type-option img {
-        border: 2px solid transparent;
-        border-radius: 5px;
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        transition: border-color 0.3s;
-    }
-    .expense-type-radio:checked + label img {
-        border-color: #007bff;
-    }
-</style>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const dateField = document.querySelector("#id_date");
-        const today = new Date().toISOString().split('T')[0];
-        if (!dateField.value) {
-            dateField.value = today;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
         }
 
-        const expenseTypeOptions = document.querySelectorAll('.expense-type-option');
-        expenseTypeOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                const radioInput = option.querySelector('.expense-type-radio');
-                radioInput.checked = true;
-                document.querySelector('#id_manual_expense_type').value = '';
+        .form-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .expense-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .expense-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .expense-form input[type="text"],
+        .expense-form input[type="date"],
+        .expense-form input[type="file"],
+        .expense-form select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .submit-button {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 1em;
+            color: #fff;
+            background: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background: #0056b3;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .expense-type-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .expense-type-option {
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .expense-type-radio {
+            display: none;
+        }
+
+        .expense-type-option img {
+            border: 2px solid transparent;
+            border-radius: 5px;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            transition: border-color 0.3s;
+        }
+
+        .expense-type-radio:checked + label img {
+            border-color: #007bff;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+</head>
+<body>
+
+    <h1 id="form-title" class="form-title">Add Expense</h1>
+
+    <form method="post" enctype="multipart/form-data" id="expense-form" class="expense-form">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.amount.label_tag }}
+            {{ form.amount }}
+        </div>
+        <div class="form-group">
+            <label for="expense_type">Expense Type</label>
+            <div id="expense-type-images" class="expense-type-images">
+                {% for expense_type in expense_types %}
+                <div class="expense-type-option">
+                    <input type="radio" id="expense_type_{{ expense_type.id }}" name="expense_type" value="{{ expense_type.id }}" class="expense-type-radio">
+                    <label for="expense_type_{{ expense_type.id }}">
+                        {% if expense_type.image %}
+                        <img src="{{ expense_type.image.url }}" alt="{{ expense_type.name }}" title="{{ expense_type.name }}" class="expense-type-image">
+                        {% else %}
+                        <span>{{ expense_type.name }}</span>
+                        {% endif %}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="manual_expense_type">Or Enter Expense Type Manually</label>
+                {{ form.manual_expense_type }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="currency">Currency:</label>
+            {{ form.currency }}
+        </div>
+        <div class="form-group">
+            <label for="payment_method">Payment Method:</label>
+            {{ form.payment_method }}
+        </div>
+        <div class="form-group">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+        </div>
+        <div class="form-group">
+            {{ form.date.label_tag }}
+            {{ form.date }}
+        </div>
+        <button type="submit" class="submit-button">Add Expense</button>
+    </form>
+    <a href="{% url 'index' %}" class="back-link">Back to Home</a>
+
+    <script>
+        // GSAP Animations
+        gsap.from("#form-title", { duration: 1, y: -50, opacity: 0, ease: "power4.out" });
+        gsap.from("#expense-form", { duration: 1, y: -50, opacity: 0, ease: "power4.out", delay: 0.5 });
+        gsap.from(".form-group", { duration: 1, y: -30, opacity: 0, ease: "power4.out", stagger: 0.3, delay: 1 });
+        gsap.from(".submit-button", { duration: 1, y: -30, opacity: 0, ease: "power4.out", delay: 1.5 });
+        gsap.from(".back-link", { duration: 1, y: -30, opacity: 0, ease: "power4.out", delay: 1.7 });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const dateField = document.querySelector("#id_date");
+            const today = new Date().toISOString().split('T')[0];
+            if (!dateField.value) {
+                dateField.value = today;
+            }
+
+            const expenseTypeOptions = document.querySelectorAll('.expense-type-option');
+            expenseTypeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const radioInput = option.querySelector('.expense-type-radio');
+                    radioInput.checked = true;
+                    document.querySelector('#id_manual_expense_type').value = '';
+                });
+            });
+
+            document.querySelector('#id_manual_expense_type').addEventListener('input', function() {
+                const checkedRadio = document.querySelector('.expense-type-option .expense-type-radio:checked');
+                if (checkedRadio) {
+                    checkedRadio.checked = false;
+                }
             });
         });
+    </script>
 
-        document.querySelector('#id_manual_expense_type').addEventListener('input', function() {
-            const checkedRadio = document.querySelector('.expense-type-option .expense-type-radio:checked');
-            if (checkedRadio) {
-                checkedRadio.checked = false;
-            }
-        });
-    });
-</script>
+</body>
+</html>
 {% endblock %}

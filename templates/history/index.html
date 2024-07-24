@@ -4,28 +4,118 @@
 
 {% block content %}
 <style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .btn-group .btn {
+        margin: 0 5px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 40vh;
+        width: 80vw;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .transaction-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .transaction-card {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .transaction-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .t-cards-wrap {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .t-card-wrap {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .amount {
+        font-size: 1.2em;
+        margin: 5px 0;
+    }
+
+    .text-success {
+        color: #28a745;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+    .actions {
+        margin-top: 10px;
+    }
+
     .edit, .delete-button {
-    display: inline-block;
-    padding: 10px 15px;
-    font-size: 1em;
-    color: #fff;
-    background: #007bff;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    cursor: pointer;
-    margin-right: 10px;
-}
-.edit:hover {
-    background: #0056b3;
-}
-.delete-button {
-    background: #dc3545;
-}
-.delete-button:hover {
-    background: #c82333;
-}
+        display: inline-block;
+        padding: 10px 15px;
+        font-size: 1em;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .edit {
+        background: #007bff;
+    }
+
+    .edit:hover {
+        background: #0056b3;
+    }
+
+    .delete-button {
+        background: #dc3545;
+    }
+
+    .delete-button:hover {
+        background: #c82333;
+    }
 </style>
+
 <h1>Transaction History</h1>
 
 <div class="btn-group" role="group" aria-label="View Options">
@@ -34,14 +124,14 @@
     <button id="view-incomes" class="btn btn-success" onclick="updateChart('incomes')">Incomes</button>
 </div>
 
-<div class="chart-container" style="position: relative; height:40vh; width:80vw">
+<div class="chart-container">
     <canvas id="transactionChart"></canvas>
 </div>
 
 <div class="transaction-cards">
     {% for expense in expenses %}
     <div class="transaction-card">
-        <div style="display: flex; justify-content: space-between;" class="t-card-wrap">
+        <div class="t-card-wrap">
             <div class="t-cards-wrap">
                 <h5>{{ expense.date }}</h5>
                 <p class="amount text-danger">-{{ total_expenses|floatformat:2 }} {{ currency }}</p>
@@ -62,19 +152,18 @@
         </div>
         <div class="actions">
             <a href="{% url 'edit_expense' expense.pk %}" class="edit">Edit</a>
-            <a href="{% url 'delete_expense' expense.id %}" class="delete-button" data-action="{% url 'delete_expense' expense.id %}">Delete</a>        </div>
+            <a href="{% url 'delete_expense' expense.id %}" class="delete-button" data-action="{% url 'delete_expense' expense.id %}">Delete</a>
         </div>
     </div>
     {% endfor %}
     {% for income in incomes %}
     <div class="transaction-card">
-        <div style="display: flex; justify-content: space-between;" class="t-cards-wrap">
-            <div class="t-card-wrap">
+        <div class="t-card-wrap">
+            <div class="t-cards-wrap">
                 <h5>{{ income.date }}</h5>
                 <p class="amount text-success">+{{ total_incomes|floatformat:2 }} {{ currency }}</p>
                 <p>{{ income.income_type.name }}</p>
             </div>
-
             {% if income.image %}
             <img style="max-height: 75px;" src="{{ income.image.url }}" alt="Income Image" width="80">
             {% endif %}
@@ -90,16 +179,6 @@
     {% endfor %}
 </div>
 
-<!-- <h2>Import Transactions</h2>
-<form method="post" enctype="multipart/form-data" action="">
-    {% csrf_token %}
-    <input type="hidden" name="currency" value="{{ currency }}">
-    <div class="mb-3">
-        <label for="file" class="form-label">Upload CSV file</label>
-        <input type="file" class="form-control" id="file" name="file" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Import</button>
-</form> -->
 {% endblock %}
 
 {% block extra_scripts %}

@@ -24,7 +24,6 @@ def convert_to_uzs(amount, currency):
 def get_selected_currency(request):
     return request.session.get('currency', 'USD')
 
-
 import logging
 logger = logging.getLogger(__name__)
 @login_required
@@ -72,7 +71,6 @@ def index(request):
     }
     return render(request, 'history/index.html', context)
 
-
 @login_required
 def add_expense(request):
     selected_currency = get_selected_currency(request)
@@ -81,7 +79,7 @@ def add_expense(request):
         if form.is_valid():
             with transaction.atomic():
                 expense = form.save(commit=False)
-                expense.user = request.user  # Ensure the expense is linked to the current user
+                expense.user = request.user
                 manual_expense_type = form.cleaned_data.get('manual_expense_type')
                 expense_type = form.cleaned_data.get('expense_type')
 
@@ -95,7 +93,7 @@ def add_expense(request):
                     messages.error(request, 'Please select or enter an expense type.')
                     return render(request, 'history/add_expense.html', {'form': form, 'expense_types': ExpenseType.objects.all(), 'currency': selected_currency})
 
-                account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
+                account_balance, _ = AccountBalance.objects.get_or_create(user=request.user)
                 expense_amount_in_uzs = convert_to_uzs(expense.amount, expense.currency)
                 if account_balance.balance >= expense_amount_in_uzs:
                     account_balance.balance -= expense_amount_in_uzs
@@ -120,18 +118,18 @@ def add_income(request):
         if form.is_valid():
             with transaction.atomic():
                 income = form.save(commit=False)
-                income.user = request.user  # Ensure the income is linked to the current user
+                income.user = request.user
                 manual_income_type = form.cleaned_data.get('manual_income_type')
                 manual_income_image = form.cleaned_data.get('manual_income_image')
 
                 if manual_income_type:
-                    income_type, created = IncomeType.objects.get_or_create(name=manual_income_type)
+                    income_type, _ = IncomeType.objects.get_or_create(name=manual_income_type)
                     if manual_income_image:
                         income_type.image = manual_income_image
                         income_type.save()
                     income.income_type = income_type
 
-                account_balance, created = AccountBalance.objects.get_or_create(user=request.user)
+                account_balance, _ = AccountBalance.objects.get_or_create(user=request.user)
                 income_amount_in_uzs = convert_to_uzs(income.amount, income.currency)
                 account_balance.balance += income_amount_in_uzs
                 account_balance.save()
@@ -146,6 +144,7 @@ def add_income(request):
 
     income_types = IncomeType.objects.all()
     return render(request, 'history/add_income.html', {'form': form, 'income_types': income_types, 'currency': selected_currency})
+
 
 @login_required
 def edit_expense(request, expense_id):

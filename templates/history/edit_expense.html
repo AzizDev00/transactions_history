@@ -3,13 +3,13 @@
 {% block title %}Edit Expense{% endblock %}
 
 {% block content %}
-<h1 class="edit-title">Edit Expense</h1>
-<form method="post" class="edit-form">
+<h1 class="edit-title animate__animated animate__fadeIn">Edit Expense</h1>
+<form method="post" class="edit-form animate__animated animate__fadeIn">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="save-button">Save Changes</button>
 </form>
-<a href="{% url 'index' %}" class="back-link">Back to Home</a>
+<a href="{% url 'index' %}" class="back-link animate__animated animate__fadeIn">Back to Home</a>
 
 <style>
     .edit-title {
@@ -17,6 +17,7 @@
         margin-bottom: 20px;
         text-align: center;
     }
+
     .edit-form {
         max-width: 600px;
         margin: 0 auto;
@@ -25,13 +26,16 @@
         border-radius: 10px;
         background: #f9f9f9;
     }
+
     .edit-form div {
         margin-bottom: 15px;
     }
+
     .edit-form label {
         display: block;
         margin-bottom: 5px;
     }
+
     .edit-form input[type="text"],
     .edit-form input[type="date"],
     .edit-form input[type="file"],
@@ -42,6 +46,7 @@
         border: 1px solid #ccc;
         border-radius: 5px;
     }
+
     .save-button {
         display: inline-block;
         padding: 10px 15px;
@@ -52,15 +57,18 @@
         border-radius: 5px;
         cursor: pointer;
     }
+
     .save-button:hover {
         background: #0056b3;
     }
+
     .back-link {
         display: inline-block;
         margin-top: 10px;
         text-decoration: none;
         color: #007bff;
     }
+
     .back-link:hover {
         text-decoration: underline;
     }

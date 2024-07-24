@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit Profile</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,6 +24,7 @@
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: animate__fadeIn animate__slow;
         }
 
         h1 {
@@ -69,6 +71,7 @@
             text-decoration: none;
             text-align: center;
             font-size: 16px;
+            animation: animate__fadeIn animate__slow;
         }
 
         input[type="submit"]:hover,
@@ -87,7 +90,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Edit Profile</h1>
+    <h1 class="animate__animated animate__fadeIn">Edit Profile</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

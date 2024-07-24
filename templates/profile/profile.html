@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} Profile {% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,18 +32,21 @@
             display: block;
             margin: 0 auto 20px;
             border-radius: 50%;
+            animation: animate__fadeIn animate__slow;
         }
 
         p {
             font-size: 1.2em;
             color: #666;
             margin: 10px 0;
+            animation: animate__fadeIn animate__slow;
         }
 
         a {
             display: block;
             text-align: center;
             margin: 20px 0;
+            animation: animate__fadeIn animate__slow;
         }
 
         button {
@@ -55,16 +58,20 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            animation: animate__fadeIn animate__slow;
         }
 
         button:hover {
             background-color: #0056b3;
         }
-        .c-link{
+
+        .c-link {
             text-decoration: none;
             font-size: 17px;
+            animation: animate__fadeIn animate__slow;
         }
-        .c-link:hover{
+
+        .c-link:hover {
             text-decoration: underline;
         }
     </style>
@@ -72,8 +79,8 @@
 <body>
     {% block content %}
     <div class="container">
-        <h1>Profile</h1>
-        <img src="{{ user.image.url }}" alt="user-img" width="100px">
+        <h1 class="animate__animated animate__fadeIn">Profile</h1>
+        <img src="{{ user.image.url }}" alt="user-img" width="100px" class="animate__animated animate__fadeIn">
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>First Name:</strong> {{ user.first_name }}</p>
         <p><strong>Last Name:</strong> {{ user.last_name }}</p>
